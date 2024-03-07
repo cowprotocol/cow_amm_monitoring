@@ -77,12 +77,12 @@ def compute_cow_amm_trades():
                     b["tokenSymbol"]
                 ] + sign_b * int(b["value"])
 
-                if sign_a == sign_b == 1:
-                    print(
-                        "\nLiquidity injection for the CoW AMM. The new state is: "
-                        + str(new_state)
-                        + "\n"
-                    )
+                #if sign_a == sign_b == 1:
+                #    print(
+                #        "\nLiquidity injection for the CoW AMM. The new state is: "
+                #        + str(new_state)
+                #        + "\n"
+                #    )
 
                 #### AT THIS POINT WE HAVE COMPUTED THE NEW STATE
                 AMM_states.append(new_state)
