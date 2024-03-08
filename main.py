@@ -7,6 +7,15 @@ import matplotlib.pyplot as plt
 
 
 def main():
+
+    """
+    To describe how the reserves of an AMM evolve over time, we will use a list, where each
+    entry is dictionary {"WETH": x, "COW": y, "block": b, "time": t}  which describes the ETH
+    reserves (x) and the COW reserves (y) at the end of block b (meaning that the AMM traded at
+    block b) and time t (timestamp in seconds).
+
+    The variables cow_amm_states and balancer_pool_states use this convention.
+    """
     cow_amm_states = compute_cow_amm_trades()
     balancer_pool_states = compute_balancer_pool_states()
 
