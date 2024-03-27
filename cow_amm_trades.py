@@ -120,6 +120,5 @@ def compute_cow_amm_trades():
                 n = n + 1
                 """
         i = i + 1
-        print(i, block_number)
     return AMM_states
 
