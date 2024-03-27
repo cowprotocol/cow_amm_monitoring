@@ -10,8 +10,8 @@ def states_to_df(states):
             "block_number": [s["block"] for s in states],
             "time": [s["time"] for s in states],
             "WETH": [float(s["WETH"]) for s in states],
-            "COW": [float(s["COW"]) for s in states]
-            # "COW": [float(s["GNO"]) for s in states]
+            #"COW": [float(s["COW"]) for s in states]
+            "GNO": [float(s["GNO"]) for s in states]
         }
     )
 

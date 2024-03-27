@@ -2,13 +2,15 @@ import requests
 from os import getenv
 from dotenv import load_dotenv
 from constants import (
-    COW_AMM_MAINNET_ADDRESS,
+    COW_AMM_ADDRESS,
     COW_SETTLEMENT_CONTRACT,
-    ORIGINAL_COW_TRANSFER,
+    ORIGINAL_GNO_TRANSFER,
     ORIGINAL_WETH_TRANSFER,
     ORIGINAL_BLOCK,
     ORIGINAL_TIME,
-    API_KEY
+    API_KEY,
+    SCAN,
+    END_BLOCK
 )
 
 
@@ -26,7 +28,7 @@ def compute_cow_amm_trades():
     AMM_states.append(
         {
             "WETH": ORIGINAL_WETH_TRANSFER,
-            "COW": ORIGINAL_COW_TRANSFER,
+            "GNO": ORIGINAL_GNO_TRANSFER,
             "block": ORIGINAL_BLOCK,
             "time": ORIGINAL_TIME,
         }
@@ -39,11 +41,15 @@ def compute_cow_amm_trades():
     i = 1
     while True:
         url = (
-            "https://api.etherscan.io/api?module=account&action=tokentx&address="
-            + COW_AMM_MAINNET_ADDRESS
+            "https://api."
+            + SCAN
+            +".io/api?module=account&action=tokentx&address="
+            + COW_AMM_ADDRESS
             + "&startblock="
             + str(start_block)
-            + "&endblock=27025780&sort=asc"
+            + "&endblock="
+            + str(END_BLOCK)
+            +"&sort=asc"
             + "&page="
             + str(i)
             + "&offset=1000&apikey="
@@ -56,6 +62,28 @@ def compute_cow_amm_trades():
             resp = res.json()["result"]
             if resp is None:
                 break
+            k = len(resp)
+            n = len(AMM_states)
+            block_number = AMM_states[n - 1]["block"]
+            new_state = AMM_states[n - 1]
+            for j in range(k):
+                a = resp[j]
+                if block_number != int(a["blockNumber"]):
+                    AMM_states.append(new_state)
+                    block_number = int(a["blockNumber"])
+                    new_state = {}
+                    new_state["block"] = int(a["blockNumber"])
+                    new_state["time"] = int(a["timeStamp"])
+                sign_a = 1
+                if a["to"] == COW_SETTLEMENT_CONTRACT: 
+                    sign_a = -1
+                value = new_state.get(a["tokenSymbol"], 0)
+                new_state[a["tokenSymbol"]] = value + sign_a * int(a["value"])
+            AMM_states.append(new_state) 
+
+
+
+        """
             k = len(resp) // 2
             n = len(AMM_states)
             for i in range(k):
@@ -64,7 +92,7 @@ def compute_cow_amm_trades():
                 b = resp[2 * i + 1]
                 if a["blockNumber"] != b["blockNumber"]:
                     print("Problem!! Exiting")
-                    exit(1)
+                    exit(1)              
                 new_state["block"] = int(a["blockNumber"])
                 new_state["time"] = int(a["timeStamp"])
                 sign_a = 1
@@ -90,6 +118,8 @@ def compute_cow_amm_trades():
                 #### AT THIS POINT WE HAVE COMPUTED THE NEW STATE
                 AMM_states.append(new_state)
                 n = n + 1
+                """
         i = i + 1
-
+        print(i, block_number)
     return AMM_states
+
