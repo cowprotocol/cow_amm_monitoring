@@ -125,7 +125,7 @@ def compute_balancer_pool_swaps(SCAN_API_KEY):
                     amount_out = int("0x" + data[66:], 16)
                     block = int(x["blockNumber"], 16)
                     time = int(x["timeStamp"], 16)
-                    if token_in == TOKEN2_BALANCER:
+                    if int(token_in,16) == int(TOKEN2_BALANCER,16):
                         entry = {
                             "hash": x["transactionHash"],
                             "block": block,
@@ -174,8 +174,7 @@ def compute_balancer_pool_states(CURRENT_TOKEN1 = CURRENT_TOKEN1, CURRENT_TOKEN2
     balancer_pool_liquidity_changes = compute_balancer_pool_liquidity_changes(
         SCAN_API_KEY
     )
-    print(TOKEN1, TOKEN2)
-    print(balancer_pool_liquidity_changes)
+
     n = len(balancer_pool_swaps)
     m = len(balancer_pool_liquidity_changes)
     i = 0
@@ -244,15 +243,13 @@ def compute_balancer_pool_states(CURRENT_TOKEN1 = CURRENT_TOKEN1, CURRENT_TOKEN2
         ):
             CURRENT_TOKEN1 += balancer_pool_swaps[i][TOKEN1]
             CURRENT_TOKEN2 += balancer_pool_swaps[i][TOKEN2]
-            balancer_pool_states.append(
-                {
+            balancer_pool_states.append({
                     "block": balancer_pool_swaps[i]["block"],
                     TOKEN1: CURRENT_TOKEN1,
-                    TOKEN1: CURRENT_TOKEN2,
+                    TOKEN2: CURRENT_TOKEN2,
                     "time": balancer_pool_swaps[i]["time"],
-                }
-            )
-            i = i + 1
+                })
+            i = i + 1            
         else:
             CURRENT_TOKEN1 += balancer_pool_liquidity_changes[j][TOKEN1]
             CURRENT_TOKEN2 += balancer_pool_liquidity_changes[j][TOKEN2]
@@ -261,10 +258,8 @@ def compute_balancer_pool_states(CURRENT_TOKEN1 = CURRENT_TOKEN1, CURRENT_TOKEN2
                     "block": balancer_pool_liquidity_changes[j]["block"],
                     TOKEN1: CURRENT_TOKEN1,
                     TOKEN2: CURRENT_TOKEN2,
-                    "time": balancer_pool_swaps[i]["time"],
+                    "time": balancer_pool_liquidity_changes[j]["time"],
                 }
             )
-            j = j + 1
+            j = j + 1       
     return balancer_pool_states
-
-print(compute_balancer_pool_states())

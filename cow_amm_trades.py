@@ -35,7 +35,7 @@ def compute_cow_amm_trades():
             "time": ORIGINAL_TIME,
         }
     )
-    print(ORIGINAL_BLOCK, ORIGINAL_TIME)
+
     load_dotenv()
     SCAN_API_KEY = getenv(API_KEY)
     ### main loop going over all transfers
@@ -72,8 +72,8 @@ def compute_cow_amm_trades():
                         {
                             TOKEN1 : AMM_states[-1][TOKEN1],
                             TOKEN2 : AMM_states[-1][TOKEN2],
-                            "block": a["blockNumber"],
-                            "time": a["timeStamp"],
+                            "block": int(a["blockNumber"]),
+                            "time": int(a["timeStamp"]),
                         })
                 sign_a = 1
                 if int(a["to"],16) == int(COW_SETTLEMENT_CONTRACT,16):
@@ -106,9 +106,3 @@ def compute_cow_amm_trades():
         i = i + 1
     #AMM_states.append(new_state)
     return AMM_states
-
-from dataframes import states_to_df
-s = states_to_df(compute_cow_amm_trades())
-print(s[-1]['WETH'][0])
-print(s[-1]['GNO'][0])
-print(s)
