@@ -35,6 +35,7 @@ def compute_cow_amm_trades():
             "time": ORIGINAL_TIME,
         }
     )
+    print(ORIGINAL_BLOCK, ORIGINAL_TIME)
     load_dotenv()
     SCAN_API_KEY = getenv(API_KEY)
     ### main loop going over all transfers
@@ -64,6 +65,22 @@ def compute_cow_amm_trades():
             resp = res.json()["result"]
             if len(resp) == 0:
                 break
+            
+            for a in resp:
+                if a["blockNumber"] != AMM_states[-1]["block"]:
+                    AMM_states.append(
+                        {
+                            TOKEN1 : AMM_states[-1][TOKEN1],
+                            TOKEN2 : AMM_states[-1][TOKEN2],
+                            "block": a["blockNumber"],
+                            "time": a["timeStamp"],
+                        })
+                sign_a = 1
+                if int(a["to"],16) == int(COW_SETTLEMENT_CONTRACT,16):
+                    sign_a = -1
+                AMM_states[-1][a["tokenSymbol"]] += sign_a * int(a["value"])
+
+            """
             k = len(resp)
             n = len(AMM_states)
             block_number = AMM_states[n - 1]["block"]
@@ -82,13 +99,16 @@ def compute_cow_amm_trades():
                     sign_a = -1
                 value = new_state.get(AMM_states[-1][a["tokenSymbol"]], 0)
                 new_state[a["tokenSymbol"]] = value + sign_a * int(a["value"])
-             
+            """ 
 
             #We're not considering the liquidity injection to the pool
             
         i = i + 1
-    AMM_states.append(new_state)
+    #AMM_states.append(new_state)
     return AMM_states
 
 from dataframes import states_to_df
-print(states_to_df(compute_cow_amm_trades()))
+s = states_to_df(compute_cow_amm_trades())
+print(s[-1]['WETH'][0])
+print(s[-1]['GNO'][0])
+print(s)
