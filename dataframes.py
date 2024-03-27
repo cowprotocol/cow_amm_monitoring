@@ -2,6 +2,10 @@
 
 import polars as pl
 import numpy as np
+from constants import (
+    TOKEN1,
+    TOKEN2
+)
 
 
 def states_to_df(states):
@@ -9,9 +13,8 @@ def states_to_df(states):
         {
             "block_number": [s["block"] for s in states],
             "time": [s["time"] for s in states],
-            "WETH": [float(s["WETH"]) for s in states],
-            #"COW": [float(s["COW"]) for s in states]
-            "GNO": [float(s["GNO"]) for s in states]
+            TOKEN1: [float(s[TOKEN1]) for s in states],
+            TOKEN2: [float(s[TOKEN2]) for s in states]
         }
     )
 
@@ -22,58 +25,58 @@ def prices_to_df(prices):
     )
 
 
-def combine_with_prices(df_amm, df_weth_prices, df_cow_prices):
+def combine_with_prices(df_amm, df_token1_prices, df_token2_prices):
     df_amm_aggregate = df_amm.clone()
     # add prices
     df_amm_aggregate = (
-        df_amm_aggregate.join(df_weth_prices, on="time", how="outer_coalesce")
-        .rename({"price": "price_weth"})
+        df_amm_aggregate.join(df_token1_prices, on="time", how="outer_coalesce")
+        .rename({"price": "price_"+TOKEN1})
         .sort("time")
     )
     df_amm_aggregate = (
-        df_amm_aggregate.join(df_cow_prices, on="time", how="outer_coalesce")
-        .rename({"price": "price_cow"})
+        df_amm_aggregate.join(df_token2_prices, on="time", how="outer_coalesce")
+        .rename({"price": "price_"+TOKEN2})
         .sort("time")
     )
     df_amm_aggregate = df_amm_aggregate.sort("time").with_columns(
-        pl.col("WETH").fill_null(strategy="forward")
+        pl.col(TOKEN1).fill_null(strategy="forward")
     )
     df_amm_aggregate = df_amm_aggregate.sort("time").with_columns(
-        pl.col("COW").fill_null(strategy="forward")
+        pl.col(TOKEN2).fill_null(strategy="forward")
     )
     df_amm_aggregate = df_amm_aggregate.sort("time").with_columns(
-        pl.col("price_weth").interpolate()
+        pl.col("price_"+TOKEN1).interpolate()
     )
     df_amm_aggregate = df_amm_aggregate.sort("time").with_columns(
-        pl.col("price_cow").interpolate()
+        pl.col("price_"+TOKEN2).interpolate()
     )
     df_amm_aggregate = (
-        df_amm_aggregate.filter(pl.col("WETH").is_not_null())
-        .filter(pl.col("price_weth").is_not_null())
-        .filter(pl.col("price_cow").is_not_null())
+        df_amm_aggregate.filter(pl.col(TOKEN1).is_not_null())
+        .filter(pl.col("price_"+TOKEN1).is_not_null())
+        .filter(pl.col("price_"+TOKEN2).is_not_null())
     )
     # compute values
     df_amm_aggregate = df_amm_aggregate.with_columns(
-        (pl.col("WETH") / 10**18 * pl.col("price_weth")).alias("value_weth")
+        (pl.col(TOKEN1) / 10**18 * pl.col("price_"+TOKEN1)).alias("value_"+TOKEN1)
     )
     df_amm_aggregate = df_amm_aggregate.with_columns(
-        (pl.col("COW") / 10**18 * pl.col("price_cow")).alias("value_cow")
+        (pl.col(TOKEN2) / 10**18 * pl.col("price_"+TOKEN2)).alias("value_"+TOKEN2)
     )
     df_amm_aggregate = df_amm_aggregate.with_columns(
-        (pl.col("value_weth") + pl.col("value_cow")).alias("total_value")
+        (pl.col("value_"+TOKEN1) + pl.col("value_"+TOKEN2)).alias("total_value")
     )
     df_amm_aggregate = df_amm_aggregate.with_columns(
         (pl.col("total_value").log().diff().exp()).alias("total_value_change")
     )
     # compute holding value
     df_amm_aggregate = df_amm_aggregate.with_columns(
-        (pl.first("WETH") / 10**18 * pl.col("price_weth")).alias("holding_value_weth")
+        (pl.first(TOKEN1) / 10**18 * pl.col("price_"+TOKEN1)).alias("holding_value_"+TOKEN1)
     )
     df_amm_aggregate = df_amm_aggregate.with_columns(
-        (pl.first("COW") / 10**18 * pl.col("price_cow")).alias("holding_value_cow")
+        (pl.first(TOKEN2) / 10**18 * pl.col("price_"+TOKEN2)).alias("holding_value_"+TOKEN2)
     )
     df_amm_aggregate = df_amm_aggregate.with_columns(
-        (pl.col("holding_value_weth") + pl.col("holding_value_cow")).alias(
+        (pl.col("holding_value_"+TOKEN1) + pl.col("holding_value_"+TOKEN2)).alias(
             "total_holding_value"
         )
     )
