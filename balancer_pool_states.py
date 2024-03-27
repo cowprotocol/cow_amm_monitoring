@@ -4,14 +4,17 @@ from dotenv import load_dotenv
 from constants import (
     BALANCER_VAULT_CONTRACT,
     BALANCER_SWAP_TOPIC,
+    BALANCER_POOL_TOPIC,
     BALANCER_PRICE_ORACLE_CONTRACT,
     COW_TOKEN_ADDRESS,
     COW_BALANCER,
     START_BLOCK,
+    END_BLOCK,
     API_KEY,
     CURRENT_COW,
     CURRENT_WETH,
-    CURRENT_TIME
+    CURRENT_TIME,
+    SCAN
 )
 
 
@@ -22,21 +25,27 @@ def twos_complement(hexstr, bits):
     return value
 
 
-def compute_balancer_pool_liquidity_changes(ETHERSCAN_API_KEY):
+def compute_balancer_pool_liquidity_changes(SCAN_API_KEY):
     result = []
     i = 1
 
     while True:
-        # https://docs.etherscan.io/
         url = (
-            "https://api.etherscan.io/api?module=logs&action=getLogs&fromBlock="
+            "https://api."
+            + SCAN
+            +".io/api?module=logs&action=getLogs&fromBlock="
             + str(START_BLOCK)
-            + "&toBlock=27025780&address="
+            + "&toBlock="
+            + str(END_BLOCK)
+            +"&address="
             + BALANCER_VAULT_CONTRACT
-            + "&topic0=0xe5ce249087ce04f05a957192435400fd97868dba0e6a4b4c049abf8af80dae78&topic1=0xDE8C195AA41C11A0C4787372DEFBBDDAA31306D2000200000000000000000181&page="
+            + "&topic0=0xe5ce249087ce04f05a957192435400fd97868dba0e6a4b4c049abf8af80dae78"
+            +"&topic1="
+            + BALANCER_POOL_TOPIC
+            +"&page="
             + str(i)
             + "&offset=1000&apikey="
-            + ETHERSCAN_API_KEY
+            + SCAN_API_KEY
         )
         
         res = requests.get(url)
@@ -74,7 +83,7 @@ def compute_balancer_pool_liquidity_changes(ETHERSCAN_API_KEY):
 ########
 
 
-def compute_balancer_pool_swaps(ETHERSCAN_API_KEY):
+def compute_balancer_pool_swaps(SCAN_API_KEY):
     ######### WE NOW ATTEMPT TO COMPUTE ALL THE REBALANCES OF THE BALANCER COW/WETH POOL
     i = 1
     result = []
@@ -89,7 +98,7 @@ def compute_balancer_pool_swaps(ETHERSCAN_API_KEY):
             + "&toBlock=27025780&page="
             + str(i)
             + "&offset=1000&apikey="
-            + ETHERSCAN_API_KEY
+            + SCAN_API_KEY
         )
         res = requests.get(url)
         if res.ok:
@@ -151,11 +160,11 @@ def compute_balancer_pool_swaps(ETHERSCAN_API_KEY):
 def compute_balancer_pool_states():
 
     load_dotenv()
-    ETHERSCAN_API_KEY = getenv(API_KEY)
+    SCAN_API_KEY = getenv(API_KEY)
 
-    balancer_pool_swaps = compute_balancer_pool_swaps(ETHERSCAN_API_KEY)
+    balancer_pool_swaps = compute_balancer_pool_swaps(SCAN_API_KEY)
     balancer_pool_liquidity_changes = compute_balancer_pool_liquidity_changes(
-        ETHERSCAN_API_KEY
+        SCAN_API_KEY
     )
     n = len(balancer_pool_swaps)
     m = len(balancer_pool_liquidity_changes)
