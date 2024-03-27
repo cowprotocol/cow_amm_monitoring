@@ -1,0 +1,39 @@
+balancer_pool_states.py :
+    OK (1)
+    Changer le nom du lien pour la requête : nouveau scan
+    topic0 et topic1 dans la requête
+    Vérifier la séparation du block data de la requête sur balancer en fonction de la chaîne dans les fonctions :
+        compute_balancer_pool_swaps
+        compute_balancer_pool_liquidity_changes
+    (pas de raison que ca change)
+    OK current_cow
+    OK current_weth
+    OK current_time
+    (2)
+
+coigecko.py :
+
+constants.py :
+    Ajoute tous les morceaux définis dans les autres fonctions
+
+cow_amm_notebook.ipynb:
+    OK start_time = 1708691819
+    OK protocol_fee_wei = 192533777180722430
+    (2)
+
+cow_amm_trades.py :
+    OK original_cow_transfer = 117134930000000000000000
+    OK original_weth_transfer = 18190000000000000000
+    OK original_block = 19226568
+    OK "time": 1707871271
+    OK (1)
+    changer le nom du lien et vérifier la structure de données
+    (2)
+
+dataframes.py :
+    Attention au nombre de secondes dans une année
+
+(1) Remplacer ETHERSCAN_API_KEY par API_KEY, et définir son nom dans constants (ex : GNOSISSCAN_KEY)
+(2) Allow for an easy change in the token pair : token1 et token2
+    remplacer le symboke du token
+    les noms des colonnes : price_ , value_ , holding_value_ , 
