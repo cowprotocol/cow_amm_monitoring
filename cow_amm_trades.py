@@ -80,27 +80,6 @@ def compute_cow_amm_trades():
                     sign_a = -1
                 AMM_states[-1][a["tokenSymbol"]] += sign_a * int(a["value"])
 
-            """
-            k = len(resp)
-            n = len(AMM_states)
-            block_number = AMM_states[n - 1]["block"]
-            new_state = AMM_states[n - 1]
-            for j in range(k):
-                a = resp[j]
-                if block_number != int(a["blockNumber"]):
-                    AMM_states.append(new_state)
-                    block_number = int(a["blockNumber"])
-                    new_state = {}
-                    new_state["block"] = int(a["blockNumber"])
-                    new_state["time"] = int(a["timeStamp"])
-                    n+=1
-                sign_a = 1
-                if a["to"] == COW_SETTLEMENT_CONTRACT: 
-                    sign_a = -1
-                value = new_state.get(AMM_states[-1][a["tokenSymbol"]], 0)
-                new_state[a["tokenSymbol"]] = value + sign_a * int(a["value"])
-            """ 
-
             #We're not considering the liquidity injection to the pool
             
         i = i + 1
