@@ -36,7 +36,7 @@ def compute_cow_amm_trades():
         }
     )
     load_dotenv()
-    ETHERSCAN_API_KEY = getenv(API_KEY)
+    SCAN_API_KEY = getenv(API_KEY)
     ### main loop going over all transfers
 
     start_block = ORIGINAL_BLOCK + 1
@@ -55,7 +55,7 @@ def compute_cow_amm_trades():
             + "&page="
             + str(i)
             + "&offset=1000&apikey="
-            + ETHERSCAN_API_KEY
+            + SCAN_API_KEY
         )
         
         res = requests.get(url)
