@@ -2,7 +2,7 @@ from cow_amm_trades import compute_cow_amm_trades
 from balancer_pool_states import compute_balancer_pool_states
 from plots import plot_spot_price, plot_invariant_over_blocks
 from coingecko import get_token_price_in_usd
-from constants import COW_TOKEN_ADDRESS, WETH_TOKEN_ADDRESS
+from constants import TOKEN2_ADDRESS, TOKEN1_ADDRESS, TOKEN1, TOKEN2
 import matplotlib.pyplot as plt
 
 
@@ -25,51 +25,51 @@ def main():
 
     n = len(cow_amm_states)
     m = len(balancer_pool_states)
-    current_cow_price = get_token_price_in_usd(COW_TOKEN_ADDRESS)
-    current_weth_price = get_token_price_in_usd(WETH_TOKEN_ADDRESS)
+    current_token2_price = get_token_price_in_usd(TOKEN2_ADDRESS)
+    current_token1_price = get_token_price_in_usd(TOKEN1_ADDRESS)
 
-    current_cow_reserve_price = (
-        cow_amm_states[n - 1]["COW"] / 10**18
-    ) * current_cow_price
-    current_weth_reserve_price = (
-        cow_amm_states[n - 1]["WETH"] / 10**18
-    ) * current_weth_price
-    current_price_original_cow_reserve = (
-        980531661670314078251973 * current_cow_price / 10**18
+    current_token2_reserve_price = (
+        cow_amm_states[n - 1][TOKEN2] / 10**18
+    ) * current_token2_price
+    current_token1_reserve_price = (
+        cow_amm_states[n - 1][TOKEN1] / 10**18
+    ) * current_token1_price
+    current_price_original_token2_reserve = (
+        980531661670314078251973 * current_token2_price / 10**18
     )
-    current_price_original_weth_reserve = (
-        138355268321545712793 * current_weth_price / 10**18
+    current_price_original_token1_reserve = (
+        138355268321545712793 * current_token1_price / 10**18
     )
     print(
-        "\nOriginal CoW-AMM reserves value in current USD prices (COW / WETH / TOTAL): "
-        + str(current_price_original_cow_reserve)
+        "\nOriginal CoW-AMM reserves value in current USD prices ("+TOKEN2+" / "+TOKEN1+" / TOTAL): "
+        + str(current_price_original_token2_reserve)
         + ", "
-        + str(current_price_original_weth_reserve)
+        + str(current_price_original_token1_reserve)
         + ", "
-        + str(current_price_original_cow_reserve + current_price_original_weth_reserve)
+        + str(current_price_original_token2_reserve + current_price_original_token1_reserve)
         + "\n"
     )
     print(
-        "\nCurrent CoW-AMM reserves value in current USD prices (COW / WETH / TOTAL): "
-        + str(current_cow_reserve_price)
+        "\nCurrent CoW-AMM reserves value in current USD prices ("+TOKEN2+" / "+TOKEN1+" / TOTAL): "
+        + str(current_token2_reserve_price)
         + ", "
-        + str(current_weth_reserve_price)
+        + str(current_token1_reserve_price)
         + ", "
-        + str(current_cow_reserve_price + current_weth_reserve_price)
+        + str(current_token2_reserve_price + current_token1_reserve_price)
         + "\n"
     )
     print(
         "\nProfit so far: "
         + str(
-            current_cow_reserve_price
-            + current_weth_reserve_price
-            - current_price_original_cow_reserve
-            - current_price_original_weth_reserve
+            current_token2_reserve_price
+            + current_token1_reserve_price
+            - current_price_original_token2_reserve
+            - current_price_original_token1_reserve
         )
     )
     print(
         "\nCurrent oracle spot price = "
-        + str(balancer_pool_states[m - 1]["COW"] / balancer_pool_states[m - 1]["WETH"])
+        + str(balancer_pool_states[m - 1][TOKEN2] / balancer_pool_states[m - 1][TOKEN1])
         + "\n"
     )
     plt.show()

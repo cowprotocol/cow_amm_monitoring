@@ -30,8 +30,8 @@ with order_surplus AS (
         JOIN order_execution oe -- contains surplus fee
         ON t.order_uid = oe.order_uid
         AND s.auction_id = oe.auction_id
-    WHERE owner = '\xBEEf5aFE88eF73337e5070aB2855d37dBF5493A4'
-    and s.block_number >= 19290334
+    WHERE owner = '\xb3861b445F873AeE9a5a4e1E2957d679Bc91B9E2' --COW_AMM_ADDRES here GNO
+    and s.block_number >= 32236569 --START_BLOCK
 ),
 order_protocol_fee AS (
     SELECT
@@ -53,12 +53,12 @@ order_protocol_fee AS (
                 -- impossible anyways. This query will return a division by
                 -- zero error in that case.
                 LEAST(
-                    fp.max_volume_factor * os.sell_amount * os.buy_amount / (os.sell_amount - os.observed_fee),
+                    fp.surplus_max_volume_factor * os.sell_amount * os.buy_amount / (os.sell_amount - os.observed_fee),
                     -- at most charge a fraction of volume
                     fp.surplus_factor / (1 - fp.surplus_factor) * surplus -- charge a fraction of surplus
                 )
                 WHEN os.kind = 'buy' THEN LEAST(
-                    fp.max_volume_factor / (1 + fp.max_volume_factor) * os.sell_amount,
+                    fp.surplus_max_volume_factor / (1 + fp.surplus_max_volume_factor) * os.sell_amount,
                     -- at most charge a fraction of volume
                     fp.surplus_factor / (1 - fp.surplus_factor) * surplus -- charge a fraction of surplus
                 )

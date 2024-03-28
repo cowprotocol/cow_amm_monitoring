@@ -42,11 +42,11 @@ def plot_invariant_over_blocks(L):
         block = t["block"]
         if block < 19290334:
             X1.append(block)
-            invariant = sqrt((t["COW"] / 10**18) * (t["WETH"] / 10**18))
+            invariant = sqrt((t[TOKEN2] / 10**18) * (t[TOKEN1] / 10**18))
             Y1.append(invariant)
         else:
             X2.append(block)
-            invariant = sqrt((t["COW"] / 10**18) * (t["WETH"] / 10**18))
+            invariant = sqrt((t[TOKEN2] / 10**18) * (t[TOKEN1] / 10**18))
             Y2.append(invariant)
     plt.figure(2)
     plt.step(X1, Y1, where="post")

@@ -8,7 +8,7 @@ def get_token_price_in_usd(address: str) -> Optional[float]:
     Returns the Coingecko price in usd of the given token.
     """
     coingecko_url = (
-        "https://api.coingecko.com/api/v3/simple/token_price/ethereum?contract_addresses="
+        "https://api.coingecko.com/api/v3/simple/token_price/gnosis?contract_addresses="
         + address
         + "&vs_currencies=usd"
     )

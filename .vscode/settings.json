@@ -1,0 +1,33 @@
+{
+    "sqltools.connections": [
+        {
+            "pgOptions": {
+                "ssl": {
+                    "cert": "",
+                    "ca": "C:\\Users\\Paul CoW\\eu-central-1-bundle.pem"
+                }
+            },
+            "previewLimit": 50,
+            "server": "cow-protocol-db-read-replica.c5bze0gkehvb.eu-central-1.rds.amazonaws.com",
+            "port": 5432,
+            "driver": "PostgreSQL",
+            "name": "New Prod - Read Replica - GNO",
+            "database": "xdai",
+            "username": "gp_readonly"
+        },
+        {
+            "pgOptions": {
+                "ssl": {
+                    "ca": "C:\\Users\\Paul CoW\\eu-central-1-bundle.pem"
+                }
+            },
+            "previewLimit": 50,
+            "server": "cow-protocol-db-read-replica.c5bze0gkehvb.eu-central-1.rds.amazonaws.com",
+            "port": 5432,
+            "driver": "PostgreSQL",
+            "name": "Mainnet ",
+            "database": "mainnet",
+            "username": "gp_readonly"
+        }
+    ]
+}
