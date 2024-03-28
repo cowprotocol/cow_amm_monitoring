@@ -38,10 +38,9 @@ def f():
 f()
 
 
-""""
 import datetime
 
-date_string = "2024-02-06 16:07:35"
+date_string = "2024-02-26 05:26:45"
 date_format = "%Y-%m-%d %H:%M:%S"
 
 date = datetime.datetime.strptime(date_string, date_format)
@@ -49,7 +48,7 @@ epoch = datetime.datetime(1970, 1, 1)
 
 seconds_since_epoch = (date - epoch).total_seconds()
 
-print(seconds_since_epoch)"""
+print(seconds_since_epoch)
 
 #0xDE8C195AA41C11A0C4787372DEFBBDDAA31306D2000200000000000000000181
 #0XB8BB1CE9C6E5401D66FE2126DB6E7387E1E24FFE -> get it from the url of the balancer pool

@@ -1,6 +1,10 @@
 # importing the required module
 import matplotlib.pyplot as plt
 from math import sqrt
+from constants import(
+    TOKEN1,
+    TOKEN2
+)
 
 
 def plot_spot_price(L1, L2):
@@ -8,12 +12,12 @@ def plot_spot_price(L1, L2):
     Y1 = []
     for t in L1:
         X1.append(t["block"])
-        Y1.append(t["COW"] / t["WETH"])
+        Y1.append(t[TOKEN2] / t[TOKEN1])
     X2 = []
     Y2 = []
     for t in L2:
         X2.append(t["block"])
-        Y2.append(t["COW"] / t["WETH"])
+        Y2.append(t[TOKEN2] / t[TOKEN1])
     plt.figure(1)
     plt.step(X1, Y1, where="post")
     plt.step(X2, Y2, where="post")

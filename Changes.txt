@@ -1,20 +1,20 @@
 balancer_pool_states.py :
     OK (1)
-    Changer le nom du lien pour la requête : nouveau scan
-    topic0 et topic1 dans la requête
-    Vérifier la séparation du block data de la requête sur balancer en fonction de la chaîne dans les fonctions :
+    OK Changer le nom du lien pour la requête : nouveau scan
+    OK topic0 et topic1 dans la requête
+    OK Vérifier la séparation du block data de la requête sur balancer en fonction de la chaîne dans les fonctions :
         compute_balancer_pool_swaps
         compute_balancer_pool_liquidity_changes
     (pas de raison que ca change)
     OK current_cow
     OK current_weth
     OK current_time
-    (2)
+    OK (2)
 
 coingecko.py :
     Ok (2)
 constants.py :
-    Ajoute tous les morceaux définis dans les autres fonctions
+    OK Ajoute tous les morceaux définis dans les autres fonctions
 
 cow_amm_notebook.ipynb:
     OK start_time = 1708691819
