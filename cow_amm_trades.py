@@ -75,9 +75,11 @@ def compute_cow_amm_trades():
                             "block": int(a["blockNumber"]),
                             "time": int(a["timeStamp"]),
                         })
-                sign_a = -1
+                sign_a = 1
                 if int(a["from"],16) == int(COW_SETTLEMENT_CONTRACT,16):
                     sign_a = 1
+                if int(a["to"],16) == int(COW_SETTLEMENT_CONTRACT,16):
+                    sign_a = -1
                 AMM_states[-1][a["tokenSymbol"]] += sign_a * int(a["value"])
 
             #We're not considering the liquidity injection to the pool
