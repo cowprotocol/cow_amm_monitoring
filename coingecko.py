@@ -3,14 +3,14 @@ from constants import HEADER, REQUEST_TIMEOUT
 from typing import Optional
 
 
-def get_token_price_in_usd(address: str) -> Optional[float]:
+def get_token_price_in_usd(token_id: str) -> Optional[float]:
     """
     Returns the Coingecko price in usd of the given token.
     """
+    #token_id = "gnosis"
     coingecko_url = (
-        "https://api.coingecko.com/api/v3/simple/token_price/ethereum?contract_addresses="
-        + address
-        + "&vs_currencies=usd"
+        "https://api.coingecko.com/api/v3/coins/"
+        + token_id
     )
     try:
         coingecko_data = requests.get(
@@ -19,7 +19,7 @@ def get_token_price_in_usd(address: str) -> Optional[float]:
             timeout=REQUEST_TIMEOUT,
         )
         coingecko_rsp = coingecko_data.json()
-        coingecko_price_in_usd = float(coingecko_rsp[address]["usd"])
+        coingecko_price_in_usd = float(coingecko_rsp["market_data"]["current_price"]["usd"])
     except requests.RequestException as err:
         print("Failed to fetch price")
         return None

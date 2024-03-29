@@ -30,8 +30,8 @@ with order_surplus AS (
         JOIN order_execution oe -- contains surplus fee
         ON t.order_uid = oe.order_uid
         AND s.auction_id = oe.auction_id
-    WHERE owner = '\xBEEf5aFE88eF73337e5070aB2855d37dBF5493A4'
-    and s.block_number >= 19290334
+    WHERE owner = '\xb3861b445F873AeE9a5a4e1E2957d679Bc91B9E2' --COW_AMM_ADDRES here GNO
+    and s.block_number >= 32236569 --START_BLOCK
 ),
 order_protocol_fee AS (
     SELECT
