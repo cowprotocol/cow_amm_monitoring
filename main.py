@@ -2,7 +2,8 @@ from cow_amm_trades import compute_cow_amm_trades
 from balancer_pool_states import compute_balancer_pool_states
 from plots import plot_spot_price, plot_invariant_over_blocks
 from coingecko import get_token_price_in_usd
-from constants import TOKEN2_ADDRESS, TOKEN1_ADDRESS, TOKEN1, TOKEN2
+from constants import (TOKEN2_ADDRESS, TOKEN1_ADDRESS, TOKEN1, TOKEN2, 
+                       TOKEN1_COINGECKO, TOKEN2_COINGECKO, ORIGINAL_TOKEN2_TRANSFER, ORIGINAL_TOKEN1_TRANSFER)
 import matplotlib.pyplot as plt
 
 
@@ -10,8 +11,8 @@ def main():
 
     """
     To describe how the reserves of an AMM evolve over time, we will use a list, where each
-    entry is dictionary {"WETH": x, "COW": y, "block": b, "time": t}  which describes the ETH
-    reserves (x) and the COW reserves (y) at the end of block b (meaning that the AMM traded at
+    entry is dictionary {"TOKEN1": x, "TOKEN2": y, "block": b, "time": t}  which describes the TOKEN1
+    reserves (x) and the TOKEN2 reserves (y) at the end of block b (meaning that the AMM traded at
     block b) and time t (timestamp in seconds).
 
     The variables cow_amm_states and balancer_pool_states use this convention.
@@ -25,8 +26,8 @@ def main():
 
     n = len(cow_amm_states)
     m = len(balancer_pool_states)
-    current_token2_price = get_token_price_in_usd(TOKEN2_ADDRESS)
-    current_token1_price = get_token_price_in_usd(TOKEN1_ADDRESS)
+    current_token2_price = get_token_price_in_usd(TOKEN2_COINGECKO)
+    current_token1_price = get_token_price_in_usd(TOKEN1_COINGECKO)
 
     current_token2_reserve_price = (
         cow_amm_states[n - 1][TOKEN2] / 10**18
@@ -35,10 +36,10 @@ def main():
         cow_amm_states[n - 1][TOKEN1] / 10**18
     ) * current_token1_price
     current_price_original_token2_reserve = (
-        980531661670314078251973 * current_token2_price / 10**18
+        ORIGINAL_TOKEN2_TRANSFER * current_token2_price / 10**18
     )
     current_price_original_token1_reserve = (
-        138355268321545712793 * current_token1_price / 10**18
+        ORIGINAL_TOKEN1_TRANSFER * current_token1_price / 10**18
     )
     print(
         "\nOriginal CoW-AMM reserves value in current USD prices ("+TOKEN2+" / "+TOKEN1+" / TOTAL): "
@@ -66,6 +67,7 @@ def main():
             - current_price_original_token2_reserve
             - current_price_original_token1_reserve
         )
+        + " USD"
     )
     print(
         "\nCurrent oracle spot price = "

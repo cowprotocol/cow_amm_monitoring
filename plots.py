@@ -3,7 +3,8 @@ import matplotlib.pyplot as plt
 from math import sqrt
 from constants import(
     TOKEN1,
-    TOKEN2
+    TOKEN2,
+    ORIGINAL_BLOCK
 )
 
 
@@ -40,7 +41,7 @@ def plot_invariant_over_blocks(L):
     Y2 = []
     for t in L:
         block = t["block"]
-        if block < 19290334:
+        if block < ORIGINAL_BLOCK:
             X1.append(block)
             invariant = sqrt((t[TOKEN2] / 10**18) * (t[TOKEN1] / 10**18))
             Y1.append(invariant)
