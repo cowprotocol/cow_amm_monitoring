@@ -1,6 +1,6 @@
 from dotenv import load_dotenv
 import os
-from constants import (START_BLOCK, 
+from constantsGNO import (START_BLOCK, 
                        BALANCER_VAULT_CONTRACT, 
                        COW_AMM_ADDRESS, 
                        ORIGINAL_BLOCK, 

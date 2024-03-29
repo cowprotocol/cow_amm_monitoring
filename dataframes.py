@@ -91,13 +91,12 @@ def combine_with_prices(df_amm, df_token1_prices, df_token2_prices):
             "profit_vs_holding_change"
         )
     )
-
     return df_amm_aggregate
 
 
 def plot_profit_vs_holding(df):
     plt = (
-        df.filter(~(pl.col("total_value_change").log().abs() > 0.2))
+        df.filter(~(pl.col("total_value_change").log().abs() > 0.02))
         .with_columns(
             pl.col("profit_vs_holding_change")
             .cum_prod()
@@ -117,9 +116,7 @@ def compute_profit_vs_holding_apy(df, correction=1):
     power = (60 * 60 * 24 * 365) / (end_time - start_time)
     # power = 1
     profit_vs_holding = (
-        df_filtered.filter(
-            ~(pl.col("profit_vs_holding_change").log().abs() > 0.01)
-        ).with_columns(
+        df_filtered.with_columns(
             pl.col("profit_vs_holding_change")
             .cum_prod()
             .alias("profit_vs_holding_relative")

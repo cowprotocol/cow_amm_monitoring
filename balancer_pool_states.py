@@ -55,16 +55,16 @@ def compute_balancer_pool_liquidity_changes(SCAN_API_KEY):
         res = requests.get(url)
         if res.ok:
             resp = res.json()["result"]
-            if resp is None:
+            if resp is None or len(resp) == 0:
                 break
             for x in resp:
                 block = int(x["blockNumber"], 16)
                 time = int(x["timeStamp"], 16)
                 data = x["data"][2:]
-                token1 = "0x" + data[288:320]
+                token1 = "0x" + data[280:320]
                 token1_delta = twos_complement("0x" + data[448:512], 256)
                 token2_delta = twos_complement("0x" + data[512:576], 256)
-                if token1 == TOKEN1_ADDRESS:
+                if int(token1,16) == int(TOKEN1_ADDRESS,16):
                     new_entry = {
                         "block": block,
                         TOKEN1: token1_delta,
@@ -112,7 +112,7 @@ def compute_balancer_pool_swaps(SCAN_API_KEY):
         res = requests.get(url)
         if res.ok:
             resp = res.json()["result"]
-            if resp is None:
+            if resp is None or len(resp) == 0:
                 break
             for x in resp:
                 if (
@@ -263,3 +263,4 @@ def compute_balancer_pool_states(CURRENT_TOKEN1 = CURRENT_TOKEN1, CURRENT_TOKEN2
             )
             j = j + 1       
     return balancer_pool_states
+
