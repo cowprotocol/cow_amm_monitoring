@@ -1,4 +1,4 @@
-#it's better to keep token1 to ETH or WETH since it serves as a reference for prices
+#it's better to keep token1 to the wrapped native token of the chain (e.g. WETH for ethereum and wxDAI for gnosis chain) since it serves as a reference for prices
 
 COW_AMM_ADDRESS = "0xb3861b445F873AeE9a5a4e1E2957d679Bc91B9E2" #GNO
 COW_SETTLEMENT_CONTRACT = "0x9008d19f58aabd9ed0d60971565aa8510560ab41" #Same
