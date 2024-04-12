@@ -166,7 +166,7 @@ def compute_balancer_pool_swaps(SCAN_API_KEY):
 #      },
 
 
-def compute_balancer_pool_states(CURRENT_TOKEN1 = CURRENT_TOKEN1, CURRENT_TOKEN2 = CURRENT_TOKEN2):
+def compute_balancer_pool_states(current_token1 = CURRENT_TOKEN1, current_token2 = CURRENT_TOKEN2):
     load_dotenv()
     SCAN_API_KEY = getenv(API_KEY)
 
@@ -183,34 +183,34 @@ def compute_balancer_pool_states(CURRENT_TOKEN1 = CURRENT_TOKEN1, CURRENT_TOKEN2
     balancer_pool_states.append(
         {
             "block": START_BLOCK,
-            TOKEN1: CURRENT_TOKEN1,
-            TOKEN2: CURRENT_TOKEN2,
+            TOKEN1: current_token1,
+            TOKEN2: current_token2,
             "time": CURRENT_TIME,
         }
     )
     for t in range(n + m):
         if i >= n:
             for t in balancer_pool_liquidity_changes[j:]:
-                CURRENT_TOKEN1 += t[TOKEN1]
-                CURRENT_TOKEN2 += t[TOKEN2]
+                current_token1 += t[TOKEN1]
+                current_token2 += t[TOKEN2]
                 balancer_pool_states.append(
                     {
                         "block": t["block"],
-                        TOKEN1: CURRENT_TOKEN1,
-                        TOKEN2: CURRENT_TOKEN2,
+                        TOKEN1: current_token1,
+                        TOKEN2: current_token2,
                         "time": t["time"],
                     }
                 )
             break
         if j >= m:
             for t in balancer_pool_swaps[i:]:
-                CURRENT_TOKEN1 += t[TOKEN1]
-                CURRENT_TOKEN2 += t[TOKEN2]
+                current_token1 += t[TOKEN1]
+                current_token2 += t[TOKEN2]
                 balancer_pool_states.append(
                     {
                         "block": t["block"],
-                        TOKEN1: CURRENT_TOKEN1,
-                        TOKEN2: CURRENT_TOKEN2,
+                        TOKEN1: current_token1,
+                        TOKEN2: current_token2,
                         "time": t["time"],
                     }
                 )
@@ -219,19 +219,19 @@ def compute_balancer_pool_states(CURRENT_TOKEN1 = CURRENT_TOKEN1, CURRENT_TOKEN2
             balancer_pool_swaps[i]["block"]
             == balancer_pool_liquidity_changes[j]["block"]
         ):
-            CURRENT_TOKEN1 += (
+            current_token1 += (
                 balancer_pool_swaps[i][TOKEN1]
                 + balancer_pool_liquidity_changes[j][TOKEN1]
             )
-            CURRENT_TOKEN2 += (
+            current_token2 += (
                 balancer_pool_swaps[i][TOKEN2]
                 + balancer_pool_liquidity_changes[j][TOKEN2]
             )
             balancer_pool_states.append(
                 {
                     "block": balancer_pool_swaps[i]["block"],
-                    TOKEN1: CURRENT_TOKEN1,
-                    TOKEN2: CURRENT_TOKEN2,
+                    TOKEN1: current_token1,
+                    TOKEN2: current_token2,
                     "time": balancer_pool_swaps[i]["time"],
                 }
             )
@@ -241,23 +241,23 @@ def compute_balancer_pool_states(CURRENT_TOKEN1 = CURRENT_TOKEN1, CURRENT_TOKEN2
             balancer_pool_swaps[i]["block"]
             < balancer_pool_liquidity_changes[j]["block"]
         ):
-            CURRENT_TOKEN1 += balancer_pool_swaps[i][TOKEN1]
-            CURRENT_TOKEN2 += balancer_pool_swaps[i][TOKEN2]
+            current_token1 += balancer_pool_swaps[i][TOKEN1]
+            current_token2 += balancer_pool_swaps[i][TOKEN2]
             balancer_pool_states.append({
                     "block": balancer_pool_swaps[i]["block"],
-                    TOKEN1: CURRENT_TOKEN1,
-                    TOKEN2: CURRENT_TOKEN2,
+                    TOKEN1: current_token1,
+                    TOKEN2: current_token2,
                     "time": balancer_pool_swaps[i]["time"],
                 })
             i = i + 1            
         else:
-            CURRENT_TOKEN1 += balancer_pool_liquidity_changes[j][TOKEN1]
-            CURRENT_TOKEN2 += balancer_pool_liquidity_changes[j][TOKEN2]
+            current_token1 += balancer_pool_liquidity_changes[j][TOKEN1]
+            current_token2 += balancer_pool_liquidity_changes[j][TOKEN2]
             balancer_pool_states.append(
                 {
                     "block": balancer_pool_liquidity_changes[j]["block"],
-                    TOKEN1: CURRENT_TOKEN1,
-                    TOKEN2: CURRENT_TOKEN2,
+                    TOKEN1: current_token1,
+                    TOKEN2: current_token2,
                     "time": balancer_pool_liquidity_changes[j]["time"],
                 }
             )
