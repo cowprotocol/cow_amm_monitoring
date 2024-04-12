@@ -3,16 +3,16 @@ COW_SETTLEMENT_CONTRACT = "0x9008d19f58aabd9ed0d60971565aa8510560ab41" #same acr
 BALANCER_PRICE_ORACLE_CONTRACT = "0xde8C195Aa41C11a0c4787372deFBbDdAa31306D2" #specific to the chain
 BALANCER_VAULT_CONTRACT = "0xBA12222222228d8Ba445958a75a0704d566BF2C8" #same
 
-#it's better to keep token1 to ETH or WETH since it serves as a reference for prices
-TOKEN1 = "WETH"
-TOKEN2 = "COW"
-TOKEN1_COINGECKO = "ethereum"
-TOKEN2_COINGECKO = "cow-protocol"
-TOKEN2_ADDRESS = "0xdef1ca1fb7fbcdc777520aa7f396b4e015f497ab"
-TOKEN1_ADDRESS = "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2"
+#it's better to keep TOKEN0 to ETH or WETH since it serves as a reference for prices
+TOKEN0 = "WETH"
+TOKEN1 = "COW"
+TOKEN0_COINGECKO = "ethereum"
+TOKEN1_COINGECKO = "cow-protocol"
+TOKEN1_ADDRESS = "0xdef1ca1fb7fbcdc777520aa7f396b4e015f497ab"
+TOKEN0_ADDRESS = "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2"
 #get this info from the balancer explorer
-TOKEN1_BALANCER = "0x000000000000000000000000c02aaa39b223fe8d0a0e5c4f27ead9083c756cc2"
-TOKEN2_BALANCER = "0x000000000000000000000000def1ca1fb7fbcdc777520aa7f396b4e015f497ab"
+TOKEN0_BALANCER = "0x000000000000000000000000c02aaa39b223fe8d0a0e5c4f27ead9083c756cc2"
+TOKEN1_BALANCER = "0x000000000000000000000000def1ca1fb7fbcdc777520aa7f396b4e015f497ab"
 BALANCER_SWAP_TOPIC = (
     "0x2170c741c41531aec20e7c107c24eecfdd15e69c9bb0a8dd37b1840b9e0b207b"
 )
@@ -30,8 +30,8 @@ START_BLOCK = 19255503
 
 # AMM
 #look on etherscan the first transactions which initialized the pool and at what block
-ORIGINAL_TOKEN2_TRANSFER = 117134930000000000000000
-ORIGINAL_TOKEN1_TRANSFER = 18190000000000000000
+ORIGINAL_TOKEN1_TRANSFER = 117134930000000000000000
+ORIGINAL_TOKEN0_TRANSFER = 18190000000000000000
 ORIGINAL_BLOCK = 19226568
 ORIGINAL_TIME = 1707871271
 
@@ -42,8 +42,8 @@ To find the curent amount:
 2 - get the auction id here : https://api.cow.fi/docs/#/default/get_api_v1_solver_competition_by_tx_hash__tx_hash_
 3 - Replace the auction id in the link and find the state of the balancer pool
 https://solver-instances.s3.eu-central-1.amazonaws.com/prod/mainnet/legacy/8458170.json"""
-CURRENT_TOKEN2 = 1475000268143578981182997
-CURRENT_TOKEN1 = 227250112810783827603
+CURRENT_TOKEN1 = 1475000268143578981182997
+CURRENT_TOKEN0 = 227250112810783827603
 CURRENT_TIME = 1708222403
 
 

@@ -4,10 +4,10 @@ from dotenv import load_dotenv
 from constants import (
     COW_AMM_ADDRESS,
     COW_SETTLEMENT_CONTRACT,
+    TOKEN0,
     TOKEN1,
-    TOKEN2,
-    ORIGINAL_TOKEN2_TRANSFER,
     ORIGINAL_TOKEN1_TRANSFER,
+    ORIGINAL_TOKEN0_TRANSFER,
     ORIGINAL_BLOCK,
     ORIGINAL_TIME,
     API_KEY,
@@ -19,7 +19,7 @@ from constants import (
 def compute_cow_amm_trades():
     """
     To describe how the reserves of the AMM evolve over time, we will use a list, where each
-    entry is dictionary {"TOKEN1": x, "TOKEN2": y, "block": b, "time": t}  which describes the ETH
+    entry is dictionary {"TOKEN0": x, "TOKEN1": y, "block": b, "time": t}  which describes the ETH
     reserves (x) and the COW reserves (y) at the end of block b (meaning that the AMM traded at
     block b) and time t (timestamp in seconds).
     """
@@ -29,8 +29,8 @@ def compute_cow_amm_trades():
     # INITIALIZATION
     AMM_states.append(
         {
+            TOKEN0 : ORIGINAL_TOKEN0_TRANSFER,
             TOKEN1 : ORIGINAL_TOKEN1_TRANSFER,
-            TOKEN2 : ORIGINAL_TOKEN2_TRANSFER,
             "block": ORIGINAL_BLOCK,
             "time": ORIGINAL_TIME,
         }
@@ -70,8 +70,8 @@ def compute_cow_amm_trades():
                 if int(a["blockNumber"]) != int(AMM_states[-1]["block"]):
                     AMM_states.append(
                         {
+                            TOKEN0 : AMM_states[-1][TOKEN0],
                             TOKEN1 : AMM_states[-1][TOKEN1],
-                            TOKEN2 : AMM_states[-1][TOKEN2],
                             "block": int(a["blockNumber"]),
                             "time": int(a["timeStamp"]),
                         })
