@@ -34,7 +34,7 @@ def compute_cow_amm_trades():
     ### main loop going over all transfers
 
     start_block = original_block + 1
-    i = 1
+    n = 1
     while True:
         url = (
             "https://api.etherscan.io/api?module=account&action=tokentx&address="
@@ -43,7 +43,7 @@ def compute_cow_amm_trades():
             + str(start_block)
             + "&endblock=27025780&sort=asc"
             + "&page="
-            + str(i)
+            + str(n)
             + "&offset=1000&apikey="
             + ETHERSCAN_API_KEY
         )
@@ -53,40 +53,26 @@ def compute_cow_amm_trades():
             resp = res.json()["result"]
             if resp is None:
                 break
-            k = len(resp) // 2
-            n = len(AMM_states)
-            for i in range(k):
-                new_state = {}
-                a = resp[2 * i]
-                b = resp[2 * i + 1]
-                if a["blockNumber"] != b["blockNumber"]:
-                    print("Problem!! Exiting")
-                    exit(1)
-                new_state["block"] = int(a["blockNumber"])
-                new_state["time"] = int(a["timeStamp"])
-                sign_a = 1
-                sign_b = 1
-                if a["to"] == COW_SETTLEMENT_CONTRACT:
-                    sign_a = -1
-                if b["to"] == COW_SETTLEMENT_CONTRACT:
-                    sign_b = -1
-                new_state[a["tokenSymbol"]] = AMM_states[n - 1][
-                    a["tokenSymbol"]
-                ] + sign_a * int(a["value"])
-                new_state[b["tokenSymbol"]] = AMM_states[n - 1][
-                    b["tokenSymbol"]
-                ] + sign_b * int(b["value"])
+            k = len(resp)
+            i = 0
+            while i < k:
+                new_state = AMM_states[-1].copy()
+                transfer = resp[i]
+                new_state["block"] = int(transfer["blockNumber"])
+                new_state["time"] = int(transfer["timeStamp"])
 
-                # if sign_a == sign_b == 1:
-                #    print(
-                #        "\nLiquidity injection for the CoW AMM. The new state is: "
-                #        + str(new_state)
-                #        + "\n"
-                #    )
+                j = i
+                while j < k and resp[i]["blockNumber"] == resp[j]["blockNumber"]:
+                    transfer = resp[j]
+                    sign = 1
+                    if transfer["from"].lower() == COW_AMM_MAINNET_ADDRESS.lower():
+                        sign = -1
+                    new_state[transfer["tokenSymbol"]] += sign * int(transfer["value"])
+                    j += 1
+                i = j
 
                 #### AT THIS POINT WE HAVE COMPUTED THE NEW STATE
                 AMM_states.append(new_state)
-                n = n + 1
-        i = i + 1
+        n = n + 1
 
     return AMM_states

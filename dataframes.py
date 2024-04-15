@@ -94,7 +94,14 @@ def combine_with_prices(df_amm, df_weth_prices, df_cow_prices):
 
 def plot_profit_vs_holding(df):
     plt = (
-        df.filter(~(pl.col("total_value_change").log().abs() > 2))
+        df.filter(
+            ((pl.col("WETH").diff() == 0) & (pl.col("COW").diff() == 0))
+            | (
+                (pl.col("WETH").diff() != 0)
+                & (pl.col("COW").diff() != 0)
+                & (pl.col("WETH").diff() * pl.col("COW").diff() < 0)
+            )
+        )
         .with_columns(
             pl.col("profit_vs_holding_change")
             .cum_prod()
@@ -115,7 +122,12 @@ def compute_profit_vs_holding_apy(df, correction=1):
     # power = 1
     profit_vs_holding = (
         df_filtered.filter(
-            ~(pl.col("profit_vs_holding_change").log().abs() > 0.01)
+            ((pl.col("WETH").diff() == 0) & (pl.col("COW").diff() == 0))
+            | (
+                (pl.col("WETH").diff() != 0)
+                & (pl.col("COW").diff() != 0)
+                & (pl.col("WETH").diff() * pl.col("COW").diff() < 0)
+            )
         ).with_columns(
             pl.col("profit_vs_holding_change")
             .cum_prod()
