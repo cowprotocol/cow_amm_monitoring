@@ -96,7 +96,14 @@ def combine_with_prices(df_amm, df_token0_prices, df_token1_prices):
 
 def plot_profit_vs_holding(df):
     plt = (
-        df.filter(~(pl.col("total_value_change").log().abs() > 0.02))
+        df.filter(
+            ((pl.col(TOKEN0).diff() == 0) & (pl.col(TOKEN1).diff() == 0))
+            | (
+                (pl.col(TOKEN0).diff() != 0)
+                & (pl.col(TOKEN1).diff() != 0)
+                & (pl.col(TOKEN0).diff() * pl.col(TOKEN1).diff() < 0)
+            )
+        )
         .with_columns(
             pl.col("profit_vs_holding_change")
             .cum_prod()
