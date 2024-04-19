@@ -123,7 +123,15 @@ def compute_profit_vs_holding_apy(df, correction=1):
     power = (60 * 60 * 24 * 365) / (end_time - start_time)
     # power = 1
     profit_vs_holding = (
-        df_filtered.with_columns(
+        df_filtered.filter(
+            ((pl.col(TOKEN0).diff() == 0) & (pl.col(TOKEN1).diff() == 0))
+            | (
+                (pl.col(TOKEN0).diff() != 0)
+                & (pl.col(TOKEN1).diff() != 0)
+                & (pl.col(TOKEN0).diff() * pl.col(TOKEN1).diff() < 0)
+            )
+        )
+        .with_columns(
             pl.col("profit_vs_holding_change")
             .cum_prod()
             .alias("profit_vs_holding_relative")
