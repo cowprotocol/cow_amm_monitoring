@@ -4,10 +4,21 @@ from dotenv import load_dotenv
 from constants import (
     BALANCER_VAULT_CONTRACT,
     BALANCER_SWAP_TOPIC,
+    BALANCER_POOL_TOPIC,
     BALANCER_PRICE_ORACLE_CONTRACT,
-    COW_TOKEN_ADDRESS,
-    COW_BALANCER,
+    TOKEN0_ADDRESS,
+    TOKEN1_ADDRESS,
+    TOKEN0_BALANCER,
+    TOKEN1_BALANCER,
+    TOKEN0,
+    TOKEN1,
     START_BLOCK,
+    END_BLOCK,
+    API_KEY,
+    CURRENT_TOKEN0,
+    CURRENT_TOKEN1,
+    CURRENT_TIME,
+    SCAN
 )
 
 
@@ -18,45 +29,53 @@ def twos_complement(hexstr, bits):
     return value
 
 
-def compute_balancer_pool_liquidity_changes(ETHERSCAN_API_KEY):
+def compute_balancer_pool_liquidity_changes(SCAN_API_KEY):
     result = []
     i = 1
 
     while True:
         url = (
-            "https://api.etherscan.io/api?module=logs&action=getLogs&fromBlock="
+            "https://api."
+            + SCAN
+            +".io/api?module=logs&action=getLogs&fromBlock="
             + str(START_BLOCK)
-            + "&toBlock=27025780&address="
+            + "&toBlock="
+            + str(END_BLOCK)
+            +"&address="
             + BALANCER_VAULT_CONTRACT
-            + "&topic0=0xe5ce249087ce04f05a957192435400fd97868dba0e6a4b4c049abf8af80dae78&topic1=0xDE8C195AA41C11A0C4787372DEFBBDDAA31306D2000200000000000000000181&page="
+            + "&topic0=0xe5ce249087ce04f05a957192435400fd97868dba0e6a4b4c049abf8af80dae78"
+            +"&topic1="
+            + BALANCER_POOL_TOPIC
+            +"&page="
             + str(i)
             + "&offset=1000&apikey="
-            + ETHERSCAN_API_KEY
+            + SCAN_API_KEY
         )
+        
         res = requests.get(url)
         if res.ok:
             resp = res.json()["result"]
-            if resp is None:
+            if resp is None or len(resp) == 0:
                 break
             for x in resp:
                 block = int(x["blockNumber"], 16)
                 time = int(x["timeStamp"], 16)
                 data = x["data"][2:]
-                token1 = "0x" + data[288:320]
-                token1_delta = twos_complement("0x" + data[448:512], 256)
-                token2_delta = twos_complement("0x" + data[512:576], 256)
-                if token1 == COW_TOKEN_ADDRESS:
+                token0 = "0x" + data[280:320]
+                token0_delta = twos_complement("0x" + data[448:512], 256)
+                token1_delta = twos_complement("0x" + data[512:576], 256)
+                if int(token0,16) == int(TOKEN0_ADDRESS,16):
                     new_entry = {
                         "block": block,
-                        "COW": token1_delta,
-                        "WETH": token2_delta,
+                        TOKEN0: token0_delta,
+                        TOKEN1: token1_delta,
                         "time": time,
                     }
                 else:
                     new_entry = {
                         "block": block,
-                        "COW": token2_delta,
-                        "WETH": token1_delta,
+                        TOKEN0: token1_delta,
+                        TOKEN1: token0_delta,
                         "time": time,
                     }
                 result.append(new_entry)
@@ -68,27 +87,32 @@ def compute_balancer_pool_liquidity_changes(ETHERSCAN_API_KEY):
 ########
 
 
-def compute_balancer_pool_swaps(ETHERSCAN_API_KEY):
+def compute_balancer_pool_swaps(SCAN_API_KEY):
     ######### WE NOW ATTEMPT TO COMPUTE ALL THE REBALANCES OF THE BALANCER COW/WETH POOL
     i = 1
     result = []
     while True:
         url = (
-            "https://api.etherscan.io/api?module=logs&action=getLogs&address="
+            "https://api."
+            + SCAN
+            +".io/api?module=logs&action=getLogs&address="
             + BALANCER_VAULT_CONTRACT
             + "&topic0_1_opr=and"
-            + "&topic1=0xDE8C195AA41C11A0C4787372DEFBBDDAA31306D2000200000000000000000181"
+            + "&topic1="
+            + BALANCER_POOL_TOPIC
             + "&fromBlock="
             + str(START_BLOCK)
-            + "&toBlock=27025780&page="
+            + "&toBlock="
+            + str(END_BLOCK)
+            +"&page="
             + str(i)
             + "&offset=1000&apikey="
-            + ETHERSCAN_API_KEY
+            + SCAN_API_KEY
         )
         res = requests.get(url)
         if res.ok:
             resp = res.json()["result"]
-            if resp is None:
+            if resp is None or len(resp) == 0:
                 break
             for x in resp:
                 if (
@@ -101,20 +125,20 @@ def compute_balancer_pool_swaps(ETHERSCAN_API_KEY):
                     amount_out = int("0x" + data[66:], 16)
                     block = int(x["blockNumber"], 16)
                     time = int(x["timeStamp"], 16)
-                    if token_in == COW_BALANCER:
+                    if int(token_in,16) == int(TOKEN1_BALANCER,16):
                         entry = {
                             "hash": x["transactionHash"],
                             "block": block,
-                            "WETH": (-1) * amount_out,
-                            "COW": amount_in,
+                            TOKEN0: (-1) * amount_out,
+                            TOKEN1: amount_in,
                             "time": time,
                         }
                     else:
                         entry = {
                             "hash": x["transactionHash"],
                             "block": block,
-                            "WETH": amount_in,
-                            "COW": (-1) * amount_out,
+                            TOKEN0: amount_in,
+                            TOKEN1: (-1) * amount_out,
                             "time": time,
                         }
                     result.append(entry)
@@ -142,19 +166,15 @@ def compute_balancer_pool_swaps(ETHERSCAN_API_KEY):
 #      },
 
 
-def compute_balancer_pool_states():
-
-    current_COW = 1475000268143578981182997
-    current_WETH = 227250112810783827603
-    current_time = 1708222403
-
+def compute_balancer_pool_states(current_token0 = CURRENT_TOKEN0, current_token1 = CURRENT_TOKEN1):
     load_dotenv()
-    ETHERSCAN_API_KEY = getenv("ETHERSCAN_KEY")
+    SCAN_API_KEY = getenv(API_KEY)
 
-    balancer_pool_swaps = compute_balancer_pool_swaps(ETHERSCAN_API_KEY)
+    balancer_pool_swaps = compute_balancer_pool_swaps(SCAN_API_KEY)
     balancer_pool_liquidity_changes = compute_balancer_pool_liquidity_changes(
-        ETHERSCAN_API_KEY
+        SCAN_API_KEY
     )
+
     n = len(balancer_pool_swaps)
     m = len(balancer_pool_liquidity_changes)
     i = 0
@@ -163,34 +183,34 @@ def compute_balancer_pool_states():
     balancer_pool_states.append(
         {
             "block": START_BLOCK,
-            "COW": current_COW,
-            "WETH": current_WETH,
-            "time": current_time,
+            TOKEN0: current_token0,
+            TOKEN1: current_token1,
+            "time": CURRENT_TIME,
         }
     )
     for t in range(n + m):
         if i >= n:
             for t in balancer_pool_liquidity_changes[j:]:
-                current_WETH += t["WETH"]
-                current_COW += t["COW"]
+                current_token0 += t[TOKEN0]
+                current_token1 += t[TOKEN1]
                 balancer_pool_states.append(
                     {
                         "block": t["block"],
-                        "WETH": current_WETH,
-                        "COW": current_COW,
+                        TOKEN0: current_token0,
+                        TOKEN1: current_token1,
                         "time": t["time"],
                     }
                 )
             break
         if j >= m:
             for t in balancer_pool_swaps[i:]:
-                current_WETH += t["WETH"]
-                current_COW += t["COW"]
+                current_token0 += t[TOKEN0]
+                current_token1 += t[TOKEN1]
                 balancer_pool_states.append(
                     {
                         "block": t["block"],
-                        "WETH": current_WETH,
-                        "COW": current_COW,
+                        TOKEN0: current_token0,
+                        TOKEN1: current_token1,
                         "time": t["time"],
                     }
                 )
@@ -199,19 +219,19 @@ def compute_balancer_pool_states():
             balancer_pool_swaps[i]["block"]
             == balancer_pool_liquidity_changes[j]["block"]
         ):
-            current_WETH += (
-                balancer_pool_swaps[i]["WETH"]
-                + balancer_pool_liquidity_changes[j]["WETH"]
+            current_token0 += (
+                balancer_pool_swaps[i][TOKEN0]
+                + balancer_pool_liquidity_changes[j][TOKEN0]
             )
-            current_COW += (
-                balancer_pool_swaps[i]["COW"]
-                + balancer_pool_liquidity_changes[j]["COW"]
+            current_token1 += (
+                balancer_pool_swaps[i][TOKEN1]
+                + balancer_pool_liquidity_changes[j][TOKEN1]
             )
             balancer_pool_states.append(
                 {
                     "block": balancer_pool_swaps[i]["block"],
-                    "WETH": current_WETH,
-                    "COW": current_COW,
+                    TOKEN0: current_token0,
+                    TOKEN1: current_token1,
                     "time": balancer_pool_swaps[i]["time"],
                 }
             )
@@ -221,27 +241,26 @@ def compute_balancer_pool_states():
             balancer_pool_swaps[i]["block"]
             < balancer_pool_liquidity_changes[j]["block"]
         ):
-            current_WETH += balancer_pool_swaps[i]["WETH"]
-            current_COW += balancer_pool_swaps[i]["COW"]
-            balancer_pool_states.append(
-                {
+            current_token0 += balancer_pool_swaps[i][TOKEN0]
+            current_token1 += balancer_pool_swaps[i][TOKEN1]
+            balancer_pool_states.append({
                     "block": balancer_pool_swaps[i]["block"],
-                    "WETH": current_WETH,
-                    "COW": current_COW,
+                    TOKEN0: current_token0,
+                    TOKEN1: current_token1,
                     "time": balancer_pool_swaps[i]["time"],
-                }
-            )
-            i = i + 1
+                })
+            i = i + 1            
         else:
-            current_WETH += balancer_pool_liquidity_changes[j]["WETH"]
-            current_COW += balancer_pool_liquidity_changes[j]["COW"]
+            current_token0 += balancer_pool_liquidity_changes[j][TOKEN0]
+            current_token1 += balancer_pool_liquidity_changes[j][TOKEN1]
             balancer_pool_states.append(
                 {
                     "block": balancer_pool_liquidity_changes[j]["block"],
-                    "WETH": current_WETH,
-                    "COW": current_COW,
-                    "time": balancer_pool_swaps[i]["time"],
+                    TOKEN0: current_token0,
+                    TOKEN1: current_token1,
+                    "time": balancer_pool_liquidity_changes[j]["time"],
                 }
             )
-            j = j + 1
+            j = j + 1       
     return balancer_pool_states
+

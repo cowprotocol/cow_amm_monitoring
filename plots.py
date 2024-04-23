@@ -1,6 +1,11 @@
 # importing the required module
 import matplotlib.pyplot as plt
 from math import sqrt
+from constants import(
+    TOKEN0,
+    TOKEN1,
+    ORIGINAL_BLOCK
+)
 
 
 def plot_spot_price(L1, L2):
@@ -8,12 +13,12 @@ def plot_spot_price(L1, L2):
     Y1 = []
     for t in L1:
         X1.append(t["block"])
-        Y1.append(t["COW"] / t["WETH"])
+        Y1.append(t[TOKEN1] / t[TOKEN0])
     X2 = []
     Y2 = []
     for t in L2:
         X2.append(t["block"])
-        Y2.append(t["COW"] / t["WETH"])
+        Y2.append(t[TOKEN1] / t[TOKEN0])
     plt.figure(1)
     plt.step(X1, Y1, where="post")
     plt.step(X2, Y2, where="post")
@@ -36,13 +41,13 @@ def plot_invariant_over_blocks(L):
     Y2 = []
     for t in L:
         block = t["block"]
-        if block < 19290334:
+        if block < ORIGINAL_BLOCK:
             X1.append(block)
-            invariant = sqrt((t["COW"] / 10**18) * (t["WETH"] / 10**18))
+            invariant = sqrt((t[TOKEN1] / 10**18) * (t[TOKEN0] / 10**18))
             Y1.append(invariant)
         else:
             X2.append(block)
-            invariant = sqrt((t["COW"] / 10**18) * (t["WETH"] / 10**18))
+            invariant = sqrt((t[TOKEN1] / 10**18) * (t[TOKEN0] / 10**18))
             Y2.append(invariant)
     plt.figure(2)
     plt.step(X1, Y1, where="post")
